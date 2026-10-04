@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+:root {
+  --background: #05070d;
+  --foreground: #e2e8f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(14, 116, 144, 0.22), transparent 60%),
+    var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overscroll-behavior: none;
+}
+
+/* ---------- Núcleo do JARVIS ---------- */
+.orb {
+  --level: 0;
+  --hue: 190;
+  position: relative;
+  width: min(52vw, 220px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+.orb[data-state="listening"] { --hue: 345; }
+.orb[data-state="processing"] { --hue: 265; }
+.orb[data-state="speaking"] { --hue: 175; }
+.orb[data-state="error"] { --hue: 8; }
+
+.orb-core {
+  width: 46%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, hsl(var(--hue) 100% 85%), hsl(var(--hue) 90% 50%) 55%, hsl(var(--hue) 90% 25%));
+  box-shadow: 0 0 40px hsl(var(--hue) 100% 55% / 0.6), 0 0 90px hsl(var(--hue) 100% 50% / 0.3);
+  transform: scale(calc(1 + var(--level) * 0.45));
+  transition: transform 80ms linear, background 400ms, box-shadow 400ms;
+  animation: orb-breathe 4s ease-in-out infinite;
+}
+.orb-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid hsl(var(--hue) 100% 70% / 0.45);
+  transition: border-color 400ms;
+}
+.orb-ring-1 { inset: 14%; animation: orb-pulse 4s ease-in-out infinite; }
+.orb-ring-2 { inset: 4%; border-style: dashed; opacity: 0.6; animation: orb-spin 24s linear infinite; }
+.orb-ring-3 { inset: -6%; opacity: 0.3; animation: orb-pulse 6s ease-in-out infinite reverse; }
+
+.orb[data-state="listening"] .orb-ring-1 { animation-duration: 1.2s; }
+.orb[data-state="processing"] .orb-ring-2 { animation-duration: 2.5s; border-style: solid; border-top-color: transparent; }
+.orb[data-state="speaking"] .orb-core { animation: orb-speak 0.9s ease-in-out infinite; }
+.orb[data-state="speaking"] .orb-ring-1 { animation-duration: 1.4s; }
+.orb[data-state="error"] .orb-core { animation: none; filter: saturate(0.8); }
+
+@keyframes orb-breathe { 50% { filter: brightness(1.15); } }
+@keyframes orb-pulse { 50% { transform: scale(1.06); opacity: 0.6; } }
+@keyframes orb-spin { to { transform: rotate(360deg); } }
+@keyframes orb-speak { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .orb *, .orb { animation: none !important; }
+}
