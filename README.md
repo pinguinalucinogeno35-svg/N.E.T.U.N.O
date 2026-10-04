@@ -87,6 +87,23 @@ npm run lint && npm run build && npm start
 2. Em *Settings → Environment Variables*, cadastre as variáveis acima (as secretas **sem** `NEXT_PUBLIC_`).
 3. Deploy. A URL é HTTPS, então microfone e instalação PWA funcionam.
 
+## Deploy na Cloudflare (Workers + OpenNext)
+
+O projeto também roda em Cloudflare Workers via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare) (`wrangler.jsonc`, `open-next.config.ts`).
+
+```bash
+cp .dev.vars.example .dev.vars   # chaves para o preview local (não commitado)
+npm run preview                  # build do Worker + execução local no runtime da Cloudflare
+npx wrangler login
+npm run deploy                   # publica o Worker "jarvis"
+```
+
+- Cadastre as chaves secretas em *Workers & Pages → jarvis → Settings → Variables and Secrets* (como **Secret**) ou com `npx wrangler secret put AI_API_KEY` etc. As `NEXT_PUBLIC_*` também precisam existir no **build**.
+- Deploy por Git: em *Workers & Pages → Create → Import a repository*, use build `npm ci && npx opennextjs-cloudflare build` e deploy `npx wrangler deploy`.
+- O cache incremental (R2) não está configurado: o app é praticamente todo dinâmico. Veja [opennext.js.org/cloudflare/caching](https://opennext.js.org/cloudflare/caching) se precisar.
+- O rate limit em memória (`lib/security.ts`) vale por isolate; para proteção real use as regras de Rate Limiting da Cloudflare.
+- `maxDuration` das rotas é ignorado na Cloudflare; vale o limite do plano de Workers.
+
 ## Troubleshooting
 
 - **Microfone não pede permissão / indisponível** — precisa de HTTPS; verifique permissões do site no navegador.
