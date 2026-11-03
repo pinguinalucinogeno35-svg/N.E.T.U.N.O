@@ -30,6 +30,14 @@ export const config = {
     baseUrl: process.env.TTS_BASE_URL ?? "https://api.openai.com/v1",
     timeoutMs: 30_000,
   },
+  embeddings: {
+    apiKey: process.env.EMBEDDING_API_KEY ?? "",
+    model: process.env.EMBEDDING_MODEL ?? "text-embedding-3-small",
+    baseUrl: process.env.EMBEDDING_BASE_URL ?? "https://api.openai.com/v1",
+    /** Deve bater com a coluna vector(1536) de public.memories. */
+    dimensions: 1536,
+    timeoutMs: 10_000,
+  },
   supabase: {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
@@ -42,6 +50,8 @@ export const config = {
     maxMessageChars: 2_000,
     maxSpeechChars: 3_000,
     maxHistoryItems: 20,
+    maxMemoryChars: 4_000,
+    memoriesPerReply: 5,
     rateLimitPerMinute: Number(process.env.RATE_LIMIT_PER_MINUTE ?? "30"),
   },
 } as const;

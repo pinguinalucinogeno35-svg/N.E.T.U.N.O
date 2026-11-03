@@ -4,6 +4,7 @@ import { askJarvis } from "@/lib/ai";
 import { config } from "@/lib/config";
 import { AppError, errorResponse } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { recallForChat } from "@/lib/memory";
 import { guard } from "@/lib/security";
 import { loadHistory, saveExchange } from "@/lib/supabase/server";
 
@@ -38,7 +39,12 @@ export async function POST(req: NextRequest) {
       : null;
     const context = stored ?? history ?? [];
 
-    const reply = await askJarvis(context, message);
+    const memories = await recallForChat(user.id, message);
+    const reply = await askJarvis(
+      context,
+      message,
+      memories.map((m) => m.content),
+    );
     const savedId = await saveExchange({
       userId: user.id,
       conversationId,
