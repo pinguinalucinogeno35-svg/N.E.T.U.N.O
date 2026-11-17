@@ -11,6 +11,10 @@
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
 	},
+	// Workers AI: IA, STT (Whisper) sem chave externa. Cota grátis diária.
+	"ai": {
+		"binding": "AI"
+	},
 	"services": [
 		{
 			// Self-reference service binding, the service name must match the worker name

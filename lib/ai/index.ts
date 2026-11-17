@@ -2,11 +2,12 @@ import "server-only";
 import { config } from "@/lib/config";
 import { AppError } from "@/lib/errors";
 import type { HistoryItem } from "@/types";
-import { anthropicProvider, openaiProvider } from "./providers";
+import { anthropicProvider, openaiProvider, workersAiProvider } from "./providers";
 import { JARVIS_SYSTEM_PROMPT } from "./system-prompt";
 import type { AiMessage, AiProvider } from "./types";
 
 function getProvider(): AiProvider {
+  if (config.ai.provider === "workers-ai") return workersAiProvider;
   if (!config.ai.apiKey) {
     throw new AppError("NOT_CONFIGURED", "AI_API_KEY ausente");
   }

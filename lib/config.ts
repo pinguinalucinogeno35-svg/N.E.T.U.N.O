@@ -6,7 +6,9 @@ import "server-only";
  */
 export const config = {
   ai: {
-    provider: (process.env.AI_PROVIDER ?? "anthropic") as "anthropic" | "openai",
+    // Sem AI_PROVIDER: usa Anthropic se houver AI_API_KEY; senão Cloudflare Workers AI (grátis, sem chave).
+    provider: (process.env.AI_PROVIDER ??
+      (process.env.AI_API_KEY ? "anthropic" : "workers-ai")) as "anthropic" | "openai" | "workers-ai",
     apiKey: process.env.AI_API_KEY ?? "",
     model: process.env.AI_MODEL ?? "",
     baseUrl: process.env.AI_BASE_URL ?? "",
@@ -14,7 +16,8 @@ export const config = {
     timeoutMs: 30_000,
   },
   stt: {
-    provider: process.env.STT_PROVIDER ?? "openai",
+    // Sem STT_PROVIDER: OpenAI se houver STT_API_KEY; senão Workers AI (Whisper, grátis, sem chave).
+    provider: process.env.STT_PROVIDER ?? (process.env.STT_API_KEY ? "openai" : "workers-ai"),
     apiKey: process.env.STT_API_KEY ?? "",
     model: process.env.STT_MODEL ?? "whisper-1",
     baseUrl: process.env.STT_BASE_URL ?? "https://api.openai.com/v1",
