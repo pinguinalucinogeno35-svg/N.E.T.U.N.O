@@ -2,7 +2,7 @@
 
 import type { Session } from "@supabase/supabase-js";
 import { useEffect, useState, type FormEvent } from "react";
-import { getBrowserClient } from "@/lib/supabase/browser";
+import { configureBrowserClient, getBrowserClient } from "@/lib/supabase/browser";
 import { JarvisApp } from "./JarvisApp";
 
 type Mode = "signin" | "signup";
@@ -111,7 +111,8 @@ function LoginForm() {
 }
 
 /** Só renderiza o JARVIS com uma sessão Supabase válida; senão mostra o login. */
-export function AuthGate() {
+export function AuthGate({ supabase: cfg }: { supabase: { url: string; anonKey: string } }) {
+  configureBrowserClient(cfg.url, cfg.anonKey);
   const [session, setSession] = useState<Session | null>(null);
   // Sem Supabase configurado não há sessão para carregar.
   const [ready, setReady] = useState(() => !getBrowserClient());
