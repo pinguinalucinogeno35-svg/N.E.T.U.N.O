@@ -35,8 +35,14 @@ export const config = {
     anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
   },
-  /** Quando "true", as rotas exigem um usuário autenticado no Supabase. */
-  requireAuth: process.env.JARVIS_REQUIRE_AUTH === "true",
+  /**
+   * Exige um usuário autenticado no Supabase nas rotas /api. Ligado por padrão
+   * em produção (falha fechada); desligue só explicitamente com
+   * JARVIS_REQUIRE_AUTH=false (ex.: desenvolvimento local sem Supabase).
+   */
+  requireAuth:
+    process.env.JARVIS_REQUIRE_AUTH === "true" ||
+    (process.env.JARVIS_REQUIRE_AUTH !== "false" && process.env.NODE_ENV === "production"),
   limits: {
     maxAudioBytes: 10 * 1024 * 1024,
     maxMessageChars: 2_000,
