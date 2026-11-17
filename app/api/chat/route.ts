@@ -1,9 +1,10 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { after, NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { askJarvis } from "@/lib/ai";
 import { config } from "@/lib/config";
 import { AppError, errorResponse } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { recallForChat, rememberFromExchange } from "@/lib/memory";
 import { guard } from "@/lib/security";
 import { loadHistory, saveExchange } from "@/lib/supabase/server";
 
@@ -38,13 +39,22 @@ export async function POST(req: NextRequest) {
       : null;
     const context = stored ?? history ?? [];
 
-    const reply = await askJarvis(context, message);
+    const memories = await recallForChat(user.id, message);
+    const reply = await askJarvis(
+      context,
+      message,
+      memories.map((m) => m.content),
+    );
     const savedId = await saveExchange({
       userId: user.id,
       conversationId,
       userText: message,
       assistantText: reply,
     });
+    // Depois de responder, o JARVIS decide sozinho o que vale lembrar (não atrasa a resposta).
+    after(() =>
+      rememberFromExchange({ userId: user.id, history: context, userText: message, assistantText: reply }),
+    );
     logger.info("chat_ok", { ms: Date.now() - started, persisted: Boolean(savedId) });
     return NextResponse.json({ reply, conversationId: savedId ?? conversationId });
   } catch (err) {

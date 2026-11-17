@@ -34,6 +34,13 @@ function build() {
     baseUrl: process.env.TTS_BASE_URL ?? "https://api.openai.com/v1",
     timeoutMs: 30_000,
   },
+  embeddings: {
+    // Grátis: Workers AI (binding AI). bge-m3 é multilíngue e gera 1024 dimensões (coluna vector(1024)).
+    model: process.env.EMBEDDING_MODEL ?? "@cf/baai/bge-m3",
+    dimensions: 1024,
+    /** Acima disso, a memória nova é considerada repetida e não é gravada. */
+    duplicateSimilarity: 0.88,
+  },
   supabase: {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
@@ -52,6 +59,9 @@ function build() {
     maxMessageChars: 2_000,
     maxSpeechChars: 3_000,
     maxHistoryItems: 20,
+    maxMemoryChars: 4_000,
+    memoriesPerReply: 5,
+    maxAutoMemoriesPerTurn: 3,
     rateLimitPerMinute: Number(process.env.RATE_LIMIT_PER_MINUTE ?? "30"),
   },
 } as const;
