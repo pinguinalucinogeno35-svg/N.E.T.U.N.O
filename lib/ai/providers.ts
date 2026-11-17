@@ -1,5 +1,6 @@
 import "server-only";
 import { config } from "@/lib/config";
+import { getAiBinding, runChat } from "@/lib/cloudflare";
 import { AppError } from "@/lib/errors";
 import type { AiProvider, AiRequest } from "./types";
 
@@ -52,5 +53,14 @@ export const openaiProvider: AiProvider = {
       },
     )) as { choices?: { message?: { content?: string } }[] };
     return (data.choices?.[0]?.message?.content ?? "").trim();
+  },
+};
+
+/** Cloudflare Workers AI via binding `AI` (sem chave externa; cota grátis diária). */
+export const workersAiProvider: AiProvider = {
+  name: "workers-ai",
+  async generate({ system, messages }: AiRequest) {
+    const ai = await getAiBinding();
+    return runChat(ai, [{ role: "system", content: system }, ...messages], config.ai.maxTokens, config.ai.model);
   },
 };

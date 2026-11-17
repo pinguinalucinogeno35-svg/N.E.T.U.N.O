@@ -63,15 +63,52 @@ export class AudioPlayer {
   }
 }
 
+/**
+ * Voz do navegador (pt-BR). Perfil desejado: homem de meia-idade, grave.
+ * O navegador não tem "rouca": o mais perto disso é baixar o tom (pitch) e a velocidade.
+ */
+const PITCH = 0.7; // 0 a 2 (1 = normal). Menor = mais grave.
+const RATE = 0.92; // 0.1 a 10 (1 = normal). Um pouco mais lento soa mais maduro.
+
+// Nomes de vozes masculinas conhecidas (Microsoft/Google/Apple), em ordem de preferência.
+const MALE_NAMES = ["antonio", "antônio", "daniel", "felipe", "donato", "humberto", "ricardo", "luciano", "male", "masculin"];
+const FEMALE_NAMES = ["francisca", "maria", "luciana", "fernanda", "thalita", "camila", "female", "feminin", "google português do brasil"];
+
+function pickVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | undefined {
+  const pt = voices.filter((v) => v.lang.toLowerCase().replace("_", "-").startsWith("pt-br"));
+  const ptAny = voices.filter((v) => v.lang.toLowerCase().startsWith("pt"));
+  const pool = pt.length ? pt : ptAny;
+  const has = (v: SpeechSynthesisVoice, names: string[]) => names.some((n) => v.name.toLowerCase().includes(n));
+  for (const n of MALE_NAMES) {
+    const found = pool.find((v) => v.name.toLowerCase().includes(n));
+    if (found) return found;
+  }
+  return pool.find((v) => !has(v, FEMALE_NAMES)) ?? pool[0];
+}
+
+/** Algumas vozes só ficam disponíveis depois do evento "voiceschanged". */
+function loadVoices(synth: SpeechSynthesis): Promise<SpeechSynthesisVoice[]> {
+  const now = synth.getVoices();
+  if (now.length) return Promise.resolve(now);
+  return new Promise((resolve) => {
+    const done = () => resolve(synth.getVoices());
+    synth.addEventListener("voiceschanged", done, { once: true });
+    setTimeout(done, 800);
+  });
+}
+
 /** Fallback: voz do navegador (pt-BR) quando o TTS do servidor não está disponível. */
-export function speakWithBrowser(text: string, onStart?: () => void): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const synth = window.speechSynthesis;
-    if (!synth) return reject(new Error("unsupported"));
+export async function speakWithBrowser(text: string, onStart?: () => void): Promise<void> {
+  const synth = window.speechSynthesis;
+  if (!synth) throw new Error("unsupported");
+  const voices = await loadVoices(synth);
+  return new Promise((resolve) => {
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = "pt-BR";
-    const voice = synth.getVoices().find((v) => v.lang.toLowerCase().startsWith("pt-br"));
+    const voice = pickVoice(voices);
     if (voice) utter.voice = voice;
+    utter.pitch = PITCH;
+    utter.rate = RATE;
     utter.onstart = () => onStart?.();
     utter.onend = () => resolve();
     utter.onerror = () => resolve(); // cancelamento também dispara erro

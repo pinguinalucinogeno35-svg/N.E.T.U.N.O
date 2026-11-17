@@ -1,7 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"main": ".open-next/worker.js",
-	"name": "jarvis",
+	"name": "n-e-t-u-n-o",
 	"compatibility_date": "2026-10-04",
 	"compatibility_flags": [
 		"nodejs_compat",
@@ -11,12 +11,16 @@
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
 	},
+	// Workers AI: IA, STT (Whisper) sem chave externa. Cota grátis diária.
+	"ai": {
+		"binding": "AI"
+	},
 	"services": [
 		{
 			// Self-reference service binding, the service name must match the worker name
 			// see https://opennext.js.org/cloudflare/caching
 			"binding": "WORKER_SELF_REFERENCE",
-			"service": "jarvis"
+			"service": "n-e-t-u-n-o"
 		}
 	]
 }

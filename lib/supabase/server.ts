@@ -16,10 +16,19 @@ export function getAdminClient(): SupabaseClient | null {
 
 export const isSupabaseConfigured = () => getAdminClient() !== null;
 
+let verifier: SupabaseClient | null = null;
+
+/** Valida o JWT com a anon key (pública): não depende da service-role estar correta. */
 export async function getUserFromToken(token: string): Promise<string | null> {
-  const client = getAdminClient();
-  if (!client) return null;
-  const { data, error } = await client.auth.getUser(token);
+  const { url, anonKey, serviceRoleKey } = config.supabase;
+  const key = anonKey || serviceRoleKey;
+  if (!url || !key) {
+    logger.error("auth_not_configured", { detail: "NEXT_PUBLIC_SUPABASE_URL/ANON_KEY ausentes no servidor" });
+    return null;
+  }
+  verifier ??= createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await verifier.auth.getUser(token);
+  if (error) logger.warn("auth_token_rejected", { detail: error.message });
   return error ? null : (data.user?.id ?? null);
 }
 
