@@ -93,6 +93,8 @@ npm run lint && npm run build && npm start
 
 **Modo grátis (sem chaves de IA):** com o binding `AI` do `wrangler.jsonc`, o app usa Cloudflare Workers AI para a conversa (Llama) e a transcrição (Whisper), e a voz do navegador (pt-BR) para falar. Basta não definir `AI_API_KEY`, `STT_API_KEY` e `TTS_API_KEY` (ou definir `AI_PROVIDER=workers-ai`). Há cota grátis diária de Workers AI; o Workers AI não tem TTS em português, por isso a fala usa o navegador. Para voz melhor, defina `TTS_API_KEY` (OpenAI).
 
+**Memória (grátis):** o JARVIS guarda fatos e preferências no Supabase (`public.memories`, pgvector) usando embeddings do Workers AI (`@cf/baai/bge-m3`, 1024 dimensões). A cada pergunta ele busca as memórias relevantes; ao final de cada troca ele extrai sozinho o que vale lembrar. Requer as migrações `supabase/migrations/0002_memories.sql` e `0004_memories_1024.sql` aplicadas. Rotas: `POST /api/memory`, `POST /api/memory/search`, `DELETE /api/memory/:id`.
+
 O projeto também roda em Cloudflare Workers via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare) (`wrangler.jsonc`, `open-next.config.ts`).
 
 ```bash
