@@ -1,5 +1,5 @@
-import { JarvisApp } from "@/components/JarvisApp";
+import { AuthGate } from "@/components/AuthGate";
 
 export default function Page() {
-  return <JarvisApp />;
+  return <AuthGate />;
 }

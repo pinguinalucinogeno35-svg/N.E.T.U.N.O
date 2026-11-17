@@ -60,7 +60,7 @@ Microfone exige **HTTPS** (ou `localhost`). Para testar no celular em desenvolvi
 | `TTS_API_KEY`, `TTS_MODEL`, `TTS_VOICE`, `TTS_SPEED`, `TTS_BASE_URL` | Voz (padrão `tts-1`, `nova`, 1.0) |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Públicas por design (protegidas por RLS) |
 | `SUPABASE_SERVICE_ROLE_KEY` | **Somente servidor.** Nunca com prefixo `NEXT_PUBLIC_` |
-| `JARVIS_REQUIRE_AUTH` | `true` exige login Supabase (Bearer token) nas rotas |
+| `JARVIS_REQUIRE_AUTH` | Exige login Supabase (Bearer token) nas rotas `/api`. **Padrão: `true` em produção**; use `false` só em dev local sem Supabase |
 | `RATE_LIMIT_PER_MINUTE` | Limite por usuário/IP/rota (em memória; use Redis em produção multi-instância) |
 
 Sem `AI_API_KEY`/`STT_API_KEY` as rotas respondem `503 NOT_CONFIGURED`; sem `TTS_API_KEY` a resposta é falada pela voz do navegador.
@@ -71,7 +71,9 @@ Sem `AI_API_KEY`/`STT_API_KEY` as rotas respondem `503 NOT_CONFIGURED`; sem `TTS
 2. Defina as três variáveis do Supabase.
 3. Tabelas: `profiles`, `conversations`, `messages` (roles `user|assistant|system`), com RLS habilitado.
 
-No MVP não há login: o backend grava com service-role e `user_id` nulo. Ao implementar autenticação, torne `conversations.user_id` `NOT NULL`, envie `Authorization: Bearer <access_token>` nas chamadas e ligue `JARVIS_REQUIRE_AUTH=true`.
+### Login
+
+O app mostra uma tela de login (e-mail + senha, Supabase Auth) e só libera o JARVIS com sessão válida. O cliente envia `Authorization: Bearer <access_token>` em todas as chamadas `/api`; o servidor valida o token, aplica rate limit por usuário e grava os dados com o `user_id` do dono. Execute também `supabase/migrations/0003_require_user.sql`. No painel do Supabase (Authentication → URL Configuration) cadastre a URL do site para os e-mails de confirmação. Em produção, sem Supabase configurado, as rotas respondem 401 (falha fechada).
 
 ## PWA
 
