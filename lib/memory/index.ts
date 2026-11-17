@@ -1,5 +1,5 @@
 import "server-only";
-import { getAiBinding } from "@/lib/cloudflare";
+import { getAiBinding, runChat } from "@/lib/cloudflare";
 import { config } from "@/lib/config";
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
@@ -157,17 +157,18 @@ export async function rememberFromExchange(params: {
       .slice(-4)
       .map((h) => `${h.role === "user" ? "Usuário" : "Assistente"}: ${h.content}`)
       .join("\n");
-    const out = (await ai.run("@cf/meta/llama-3.1-8b-instruct", {
-      max_tokens: 400,
-      messages: [
+    const out = await runChat(
+      ai,
+      [
         { role: "system", content: EXTRACT_SYSTEM },
         {
           role: "user",
           content: `${recent ? `Contexto:\n${recent}\n\n` : ""}Usuário: ${params.userText}\nAssistente: ${params.assistantText}`,
         },
       ],
-    })) as { response?: string };
-    const found = parseExtraction(out.response ?? "").slice(0, config.limits.maxAutoMemoriesPerTurn);
+      400,
+    );
+    const found = parseExtraction(out).slice(0, config.limits.maxAutoMemoriesPerTurn);
     let saved = 0;
     for (const m of found) {
       const id = await saveMemory({
