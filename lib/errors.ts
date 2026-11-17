@@ -13,6 +13,7 @@ export type ErrorCode =
   | "STT_FAILED"
   | "AI_FAILED"
   | "TTS_FAILED"
+  | "MEMORY_FAILED"
   | "INTERNAL";
 
 const STATUS: Record<ErrorCode, number> = {
@@ -26,6 +27,7 @@ const STATUS: Record<ErrorCode, number> = {
   STT_FAILED: 502,
   AI_FAILED: 502,
   TTS_FAILED: 502,
+  MEMORY_FAILED: 502,
   INTERNAL: 500,
 };
 
@@ -41,6 +43,7 @@ const USER_MESSAGE: Record<ErrorCode, string> = {
   STT_FAILED: "Não consegui transcrever o áudio.",
   AI_FAILED: "O JARVIS não conseguiu gerar uma resposta agora.",
   TTS_FAILED: "Não consegui gerar a voz da resposta.",
+  MEMORY_FAILED: "Não consegui acessar a memória agora.",
   INTERNAL: "Algo deu errado. Tente novamente.",
 };
 

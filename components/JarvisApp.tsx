@@ -7,7 +7,7 @@ import { StatusIndicator } from "./StatusIndicator";
 import { TextComposer } from "./TextComposer";
 import { VoiceButton } from "./VoiceButton";
 
-export function JarvisApp() {
+export function JarvisApp({ email, onSignOut }: { email?: string; onSignOut?: () => void }) {
   const v = useVoiceAssistant();
   const busy = v.state === "processing" || v.state === "listening";
 
@@ -15,13 +15,25 @@ export function JarvisApp() {
     <main className="mx-auto flex h-dvh w-full max-w-3xl flex-col px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
       <header className="flex items-center justify-between">
         <h1 className="text-sm font-semibold tracking-[0.5em] text-cyan-200">JARVIS</h1>
-        <button
-          type="button"
-          onClick={v.newConversation}
-          className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 hover:border-cyan-300/40"
-        >
-          Nova conversa
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={v.newConversation}
+            className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300 hover:border-cyan-300/40"
+          >
+            Nova conversa
+          </button>
+          {onSignOut && (
+            <button
+              type="button"
+              onClick={onSignOut}
+              title={email}
+              className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400 hover:border-cyan-300/40"
+            >
+              Sair
+            </button>
+          )}
+        </div>
       </header>
 
       <section className="flex flex-col items-center gap-4 pt-4">

@@ -27,7 +27,7 @@ function rateLimit(key: string) {
 
 /**
  * Ponto único de proteção das rotas: identifica o usuário (Bearer token do
- * Supabase Auth), aplica rate limit e exige login se JARVIS_REQUIRE_AUTH=true.
+ * Supabase Auth), aplica rate limit e exige login quando config.requireAuth (padrão em produção).
  */
 export async function guard(req: NextRequest): Promise<RequestUser> {
   const authHeader = req.headers.get("authorization");
