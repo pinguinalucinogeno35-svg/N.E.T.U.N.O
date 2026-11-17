@@ -103,7 +103,7 @@ npm run deploy                   # publica o Worker "n-e-t-u-n-o"
 ```
 
 - Cadastre as chaves secretas em *Workers & Pages → n-e-t-u-n-o → Settings → Variables and Secrets* (como **Secret**) ou com `npx wrangler secret put AI_API_KEY` etc. As `NEXT_PUBLIC_*` também precisam existir no **build**.
-- Deploy por Git: em *Workers & Pages → Create → Import a repository*, use build `npm ci && npx opennextjs-cloudflare build` e deploy `npx wrangler deploy`.
+- Deploy por Git: em *Workers & Pages → Create → Import a repository*, use a branch `main`, build `npx opennextjs-cloudflare build` (o `npm run build` comum não gera o Worker) e deploy `npx wrangler deploy`.
 - O cache incremental (R2) não está configurado: o app é praticamente todo dinâmico. Veja [opennext.js.org/cloudflare/caching](https://opennext.js.org/cloudflare/caching) se precisar.
 - O rate limit em memória (`lib/security.ts`) vale por isolate; para proteção real use as regras de Rate Limiting da Cloudflare.
 - `maxDuration` das rotas é ignorado na Cloudflare; vale o limite do plano de Workers.
