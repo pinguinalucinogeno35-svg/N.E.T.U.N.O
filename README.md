@@ -91,6 +91,8 @@ npm run lint && npm run build && npm start
 
 ## Deploy na Cloudflare (Workers + OpenNext)
 
+**Modo grátis (sem chaves de IA):** com o binding `AI` do `wrangler.jsonc`, o app usa Cloudflare Workers AI para a conversa (Llama) e a transcrição (Whisper), e a voz do navegador (pt-BR) para falar. Basta não definir `AI_API_KEY`, `STT_API_KEY` e `TTS_API_KEY` (ou definir `AI_PROVIDER=workers-ai`). Há cota grátis diária de Workers AI; o Workers AI não tem TTS em português, por isso a fala usa o navegador. Para voz melhor, defina `TTS_API_KEY` (OpenAI).
+
 O projeto também roda em Cloudflare Workers via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare) (`wrangler.jsonc`, `open-next.config.ts`).
 
 ```bash
