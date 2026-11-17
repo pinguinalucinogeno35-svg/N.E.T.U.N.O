@@ -4,7 +4,8 @@ import "server-only";
  * Configuração server-side. Nenhuma destas variáveis tem prefixo NEXT_PUBLIC_,
  * portanto nunca entram no bundle do navegador.
  */
-export const config = {
+function build() {
+  return {
   ai: {
     // Sem AI_PROVIDER: usa Anthropic se houver AI_API_KEY; senão Cloudflare Workers AI (grátis, sem chave).
     provider: (process.env.AI_PROVIDER ??
@@ -54,3 +55,13 @@ export const config = {
     rateLimitPerMinute: Number(process.env.RATE_LIMIT_PER_MINUTE ?? "30"),
   },
 } as const;
+}
+
+/**
+ * Lido a cada acesso (não no import): no Cloudflare Workers o process.env só é
+ * preenchido durante a requisição, então valores congelados no carregamento do
+ * módulo ficariam vazios.
+ */
+export const config = new Proxy({} as ReturnType<typeof build>, {
+  get: (_t, key) => build()[key as keyof ReturnType<typeof build>],
+});
